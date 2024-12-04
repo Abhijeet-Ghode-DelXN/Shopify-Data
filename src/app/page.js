@@ -21,17 +21,21 @@ export default function Home() {
   };
 
   return (
-    <div>
-      <button onClick={handleClick}>Get Data</button>
+    <div className='w-full h-screen flex flex-col items-center justify-center gap-5'>
+      <h1 className='text-xl font-extrabold '>Orders Data Of Dec 04 2024</h1>
+      <button onClick={handleClick} className='bg-blue-700 p-3 rounded-lg text-white font-semibold'>Get orders Data Data</button>
       <div>
         {products.length > 0 ? (
+          <div className='flex flex-col items-center gap-5'>
+            <h1 className='text-red-500 text-lg '>Please Check your console to get Whole Data</h1>
           <ul>
             {products.map((product) => (
               <li key={product.id}>{product.id}</li>
             ))}
           </ul>
+          </div>
         ) : (
-          <p>No products found.</p>
+          <p></p>
         )}
       </div>
     </div>
