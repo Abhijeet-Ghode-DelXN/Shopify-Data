@@ -20,7 +20,7 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center gap-5">
+    <div className="w-full h-auto p-10 flex flex-col items-center justify-center gap-5">
       <h1 className="text-xl font-extrabold">Orders Data Of Dec 04 2024</h1>
       <button
         onClick={handleClick}
