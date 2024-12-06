@@ -7,26 +7,35 @@ export async function GET(req) {
 
   // Extract the date from the query parameters
   const { searchParams } = new URL(req.url);
-  const specificDate = searchParams.get('date'); // Example: "2024-08-06"
+  const specificDate = searchParams.get('date'); // Example: "2024-07-14"
 
   if (!specificDate) {
     return NextResponse.json({ error: "Date parameter is required" }, { status: 400 });
   }
 
   try {
-    // Parse the specific date to handle timezone correctly
-    const startOfDay = new Date(specificDate);
-    const endOfDay = new Date(specificDate);
+    // Parse the specific date (assumed to be in the store's local time)
+    const date = new Date(specificDate);
 
-    // Set the time for the start and end of the day in local time
-    startOfDay.setHours(0, 0, 0, 0);
-    endOfDay.setHours(23, 59, 59, 999);
+    // Manually adjust to the store's local time zone (assuming IST, UTC+5:30 here)
+    const storeOffsetInMinutes = 5 * 60 + 30; // Offset for IST (UTC +5:30)
 
-    // Convert to ISO format, considering the timezone offset (Shopify's default format includes offset)
-    const createdAtMin = startOfDay.toISOString();
-    const createdAtMax = endOfDay.toISOString();
+    // Set the start and end of the day in local time (store time zone)
+    const startOfDayLocal = new Date(date);
+    const endOfDayLocal = new Date(date);
 
-    // Construct the Shopify API URL with the filtered date range
+    startOfDayLocal.setHours(0, 0, 0, 0); // Start at 00:00:00
+    endOfDayLocal.setHours(23, 59, 59, 999); // End at 23:59:59
+
+    // Convert start and end of the day to UTC by subtracting the store offset
+    const startOfDayUTC = new Date(startOfDayLocal.getTime() - storeOffsetInMinutes * 60000);
+    const endOfDayUTC = new Date(endOfDayLocal.getTime() - storeOffsetInMinutes * 60000);
+
+    // Convert to ISO format in UTC for Shopify API
+    const createdAtMin = startOfDayUTC.toISOString();
+    const createdAtMax = endOfDayUTC.toISOString();
+
+    // Construct the Shopify API URL with the filtered date range in UTC
     const url = `https://${SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/2023-01/orders.json?created_at_min=${createdAtMin}&created_at_max=${createdAtMax}&status=any`;
 
     const response = await axios.get(url, {
